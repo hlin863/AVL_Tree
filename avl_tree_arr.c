@@ -150,47 +150,159 @@ void displayTree(TREE *tree, int index){
 
 }
 
-TREE *deleteElement(TREE *tree, int element, int index){
-    if (index > tree->size){
-        // invalid index
+TREE *deleteElement(TREE *tree, int element, int index, bool *success){
+    if (tree->size == 0){
+        // if the tree is empty, return the tree.
+        *success = false;
         return tree;
     } else {
-
-        if (tree->data[index] == 0){
-            // element not found
-            return tree;
+        if (element < tree->data[index]){
+            // check the left subtree if the deleted element is less than the node at the index.
+            tree = deleteElement(tree, element, 2 * index + 1, success);
+        } else if (element > tree->data[index]){
+            tree = deleteElement(tree, element, 2 * index + 2, success);
         } else {
-
-            if (tree->data[index] == element){
-                // element found
-                if (2 * index + 1 < tree->size){
-                    // left subtree exists
-                    if (2 * index + 2 > tree->size){
-                        // right subtree does not exist
-                    }
-                }
-
+            
+            if (2 * index + 1 > tree->size){
+                // deleting an element with no children nodes.
+                *success = true;
                 tree->data[index] = 0;
-                tree->size -= 1;
                 return tree;
             } else {
 
-                if (element < tree->data[index]){
-                    // element not found in the left subtree
-                    tree = deleteElement(tree, element, 2 * index + 1);
+                if (2 * index + 2 > tree->size){
+                    // if only the left branch was present
+                    *success = true;
+                    tree->data[index] = tree->data[2 * index + 1];
+                    tree->data[2 * index + 1] = 0;
+                    return tree;
                 } else {
-                    // element not found in the right subtree
-                    tree = deleteElement(tree, element, 2 * index + 2);
+
+                    *success = true;
+                        
+                    int temp = index;
+
+                    int children_size = 10;
+
+                    int children_index = 0;
+
+                    // use an array to track the children of the node to be deleted.
+                    int *children = (int*) malloc(sizeof(int) * children_size);
+
+                    trackChildren(tree, 2 * index + 1, &children_index, children);
+
+                    trackChildren(tree, 2 * index + 2, &children_index, children);
+
+                    /******************************************************************************************/
+                    /* test function to display the children nodes. */
+                    printf("Children nodes: ");
+
+                    for (int i = 0; i < children_index; i++){
+                        printf("%d ", children[i]);
+                    }
+
+                    printf("\n");
+
+                    /******************************************************************************************/
+
+                    // restructure the children of the node to be deleted.
+                    tree = restructureChildren(tree, children, children_index, temp);
+
+                    return tree;
 
                 }
-
-                return tree;
 
             }
 
         }
+    }
+}
+
+TREE *restructureChildren(TREE *tree, int *children, int children_index, int temp){
+
+    int *filtered_children = filterChildren(children, children_index);
+
+    // sort the filtered children in ascending order.
+    filtered_children = sortArray(filtered_children, children_index);
+
+    printf("Tree index: %d\n", temp);
+
+    tree = insertChildren(tree, filtered_children, 0, temp);
+
+    return tree;
+
+}
+
+TREE *insertChildren(TREE *tree, int *filtered_children, int filtered_index, int index){
+    if (index > tree->size){
+        return tree;
+    } else {
+        
+        if (filtered_index >= sizeof(filtered_children)){
+            return tree;
+        }
+        
+        tree->data[index] = filtered_children[filtered_index];
+
+        tree = insertChildren(tree, filtered_children, filtered_index + 1, 2 * index + 1);
+        tree = insertChildren(tree, filtered_children, filtered_index + 1, 2 * index + 2);
+
+        return tree;
+    }
+}
+
+int *filterChildren(int *children, int children_index){
+
+    int *result = (int*) malloc(sizeof(int) * children_index);
+
+    for (int i = 1; i < children_index; i++){
+        result[i - 1] = children[i - 1];
+    }
+
+    return result;
+
+}
+
+int *sortArray(int *filtered_children, int children_index){
+
+    for (int i = 1; i < children_index; i++){
+        for (int j = 1; j < children_index; j++){
+            if (filtered_children[j - 1] > filtered_children[j]){
+                int temp = filtered_children[j - 1];
+                filtered_children[j - 1] = filtered_children[j];
+                filtered_children[j] = temp;
+            }
+        }
+    }
+
+    return filtered_children;
+
+}
+
+void trackChildren(TREE *tree, int index, int *children_index, int *children){
+
+    if (index > tree->size){
+        return;
+    } else {
+
+        // printf("Children array size: %d\n", sizeof(children));
+
+        if (*children_index == sizeof(children)){
+            // if the array is full, double the capacity of the array.
+            children = (int*) realloc(children, sizeof(int) * (*children_index * 2));
+        }
+
+        printf("Children: %d\n", tree->data[index]);
+
+        children[*children_index] = tree->data[index];
+
+        *children_index += 1;
+
+        trackChildren(tree, 2 * index + 1, children_index, children);
+        trackChildren(tree, 2 * index + 2, children_index, children);
 
     }
+
 }
 
 int main(){
@@ -206,9 +318,11 @@ int main(){
 
     displayTree(tree, 0);
 
+    bool success;
+
     printf("\n");
 
-    tree = deleteElement(tree, 60, 0);
+    tree = deleteElement(tree, 60, 0, &success);
 
     displayTree(tree, 0);
 

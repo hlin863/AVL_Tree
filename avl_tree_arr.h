@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef struct AVLTree{
 
@@ -48,4 +49,23 @@ void displayTree(TREE *tree, int index);
     * @param index: tracking the position of where to delete the element.
     * @return: the tree with the element deleted.
 */
-TREE *deleteElement(TREE *tree, int element, int index);
+TREE *deleteElement(TREE *tree, int element, int index, bool *success);
+
+/*
+    *tracks the children nodes of a node
+    * @param tree: the tree to track the children nodes of.
+    * @param index: the index to track the children nodes of.
+    * @return: the number of children nodes of the node.
+*/
+void trackChildren(TREE *tree, int index, int *children_index, int *children);
+
+/*
+    *Restructures the AVL tree
+*/
+TREE *restructureChildren(TREE *tree, int *children, int children_index, int temp);
+
+int *filterChildren(int *children, int children_index);
+
+int *sortArray(int *filtered_children, int children_index);
+
+TREE *insertChildren(TREE *tree, int *filtered_children, int filtered_index, int index);
