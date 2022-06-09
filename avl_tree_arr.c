@@ -135,7 +135,7 @@ TREE *initialiseTree(TREE *tree, int size){
 
 void displayTree(TREE *tree, int index){
 
-    if (index > tree->size){
+    if (index >= tree->size){
         return;
     } else {
             
@@ -178,6 +178,10 @@ TREE *deleteElement(TREE *tree, int element, int index, bool *success){
                     return tree;
                 } else {
 
+                    displayTree(tree, 0);
+
+                    printf("\n");
+
                     *success = true;
                         
                     int temp = index;
@@ -194,19 +198,33 @@ TREE *deleteElement(TREE *tree, int element, int index, bool *success){
                     trackChildren(tree, 2 * index + 2, &children_index, children);
 
                     /******************************************************************************************/
+
+                    printf("TEST CHILDREN 1\n");
                     /* test function to display the children nodes. */
-                    printf("Children nodes: ");
-
-                    for (int i = 0; i < children_index; i++){
-                        printf("%d ", children[i]);
-                    }
-
-                    printf("\n");
+                    displayArray(children, children_index);
 
                     /******************************************************************************************/
 
                     // restructure the children of the node to be deleted.
                     tree = restructureChildren(tree, children, children_index, temp);
+
+                    /*******************************************************************************************/
+
+                    // test the display of the elements before the index.
+
+                    tree->size -= 1;
+
+                    printf("Total nodes: ");
+
+                    for (int i = 0; i < tree->size; i++){
+                        printf("%d ", tree->data[i]);
+                    }
+
+                    printf("\n");
+
+                    /*******************************************************************************************/
+
+
 
                     return tree;
 
@@ -218,16 +236,41 @@ TREE *deleteElement(TREE *tree, int element, int index, bool *success){
     }
 }
 
+void displayArray(int *array, int size){
+    /******************************************************************************************/
+
+    /* test function to display the children nodes. */
+    printf("Children nodes: ");
+
+    for (int i = 0; i < size; i++){
+        printf("%d ", array[i]);
+    }
+
+    printf("\n");
+
+    /******************************************************************************************/
+}
+
 TREE *restructureChildren(TREE *tree, int *children, int children_index, int temp){
 
-    int *filtered_children = filterChildren(children, children_index);
-
-    // sort the filtered children in ascending order.
-    filtered_children = sortArray(filtered_children, children_index);
+    printf("TEST CHILDREN 2\n");
+    /* test function to display the children nodes. */
+    displayArray(children, children_index);
 
     printf("Tree index: %d\n", temp);
 
-    tree = insertChildren(tree, filtered_children, 0, temp);
+    /******************************************************************************************/
+    // test to check the size of children array.
+
+    printf("Children size: %d\n", children_index);
+
+    /******************************************************************************************/
+
+    children = sortArray(children, children_index);
+
+    /******************************************************************************************/
+
+    tree = insertChildren(tree, children, 0, temp);
 
     return tree;
 
@@ -238,14 +281,14 @@ TREE *insertChildren(TREE *tree, int *filtered_children, int filtered_index, int
         return tree;
     } else {
         
-        if (filtered_index >= sizeof(filtered_children)){
+        if (filtered_index >= sizeof(filtered_children) / sizeof(int)){
             return tree;
         }
         
         tree->data[index] = filtered_children[filtered_index];
 
         tree = insertChildren(tree, filtered_children, filtered_index + 1, 2 * index + 1);
-        tree = insertChildren(tree, filtered_children, filtered_index + 1, 2 * index + 2);
+        tree = insertChildren(tree, filtered_children, filtered_index + 2, 2 * index + 2);
 
         return tree;
     }
@@ -292,14 +335,24 @@ void trackChildren(TREE *tree, int index, int *children_index, int *children){
             children = (int*) realloc(children, sizeof(int) * (*children_index * 2));
         }
 
-        printf("Children: %d\n", tree->data[index]);
+        if (tree->data[index] != 0){
 
-        children[*children_index] = tree->data[index];
+            /******************************************************************************************/
 
-        *children_index += 1;
+            // if the children node was a valid value.
+            printf("Children: %d\n", tree->data[index]);
 
-        trackChildren(tree, 2 * index + 1, children_index, children);
-        trackChildren(tree, 2 * index + 2, children_index, children);
+            children[*children_index] = tree->data[index];
+
+            *children_index += 1;
+
+            trackChildren(tree, 2 * index + 1, children_index, children);
+            trackChildren(tree, 2 * index + 2, children_index, children);
+
+            /******************************************************************************************/
+
+        }
+        
 
     }
 

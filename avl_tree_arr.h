@@ -69,3 +69,5 @@ int *filterChildren(int *children, int children_index);
 int *sortArray(int *filtered_children, int children_index);
 
 TREE *insertChildren(TREE *tree, int *filtered_children, int filtered_index, int index);
+
+void displayArray(int *array, int size);
