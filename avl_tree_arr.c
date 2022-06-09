@@ -167,6 +167,7 @@ TREE *deleteElement(TREE *tree, int element, int index, bool *success){
                 // deleting an element with no children nodes.
                 *success = true;
                 tree->data[index] = 0;
+                tree->size -= 1;
                 return tree;
             } else {
 
@@ -175,6 +176,7 @@ TREE *deleteElement(TREE *tree, int element, int index, bool *success){
                     *success = true;
                     tree->data[index] = tree->data[2 * index + 1];
                     tree->data[2 * index + 1] = 0;
+                    tree->size -= 1;
                     return tree;
                 } else {
 
@@ -223,8 +225,6 @@ TREE *deleteElement(TREE *tree, int element, int index, bool *success){
                     printf("\n");
 
                     /*******************************************************************************************/
-
-
 
                     return tree;
 
